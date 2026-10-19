@@ -156,7 +156,7 @@ The device is detected automatically (XPU, then CUDA, then CPU), so `experiments
 run unchanged, for example `python vla-scripts/deploy.py --openvla_path openvla/openvla-7b`. In your own code, load the
 model with `attn_implementation="sdpa"` and move it with `.to("xpu:0")`. The Quick Start above works the same way with
 `"xpu:0"` in place of `"cuda:0"`. Flash Attention 2 is CUDA-only: on other backends the repo falls back to PyTorch
-SDPA attention and logs it once. Training and fine-tuning are not covered.
+SDPA attention and logs it once.
 
 **Note:** See `vla-scripts/` for full training and verification scripts for OpenVLA models. Note that `scripts/` is
 mostly a holdover from the original (base) `prismatic-vlms` repository, with support for training and evaluating

@@ -11,6 +11,8 @@ import torch
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
+from prismatic.util.device import attn_implementation, default_device
+
 # === Verification Arguments ===
 MODEL_PATH = "TRI-ML/prismatic-siglip-224px-7b"
 DEFAULT_IMAGE_URL = (
@@ -42,7 +44,7 @@ else:
 @torch.inference_mode()
 def verify_prismatic() -> None:
     print(f"[*] Verifying PrismaticForConditionalGeneration using Model `{MODEL_PATH}`")
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    device = default_device()
 
     # Load Processor & VLM
     print("[*] Instantiating Processor and Pretrained VLM")
@@ -64,7 +66,7 @@ def verify_prismatic() -> None:
     print("[*] Loading in BF16 with Flash-Attention Enabled")
     vlm = AutoModelForVision2Seq.from_pretrained(
         MODEL_PATH,
-        attn_implementation="flash_attention_2",
+        attn_implementation=attn_implementation(device),
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         trust_remote_code=True,

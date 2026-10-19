@@ -142,6 +142,22 @@ pip install "flash-attn==2.5.5" --no-build-isolation
 
 If you run into any problems during the installation process, please file a GitHub Issue.
 
+### How to run the same on Intel's XPU
+
+Inference runs on an Intel GPU (PyTorch `xpu` backend) with the same code. Install the XPU build of PyTorch instead of
+the CUDA one, and skip the Flash Attention 2 step:
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu
+pip install -e .
+```
+
+The device is detected automatically (XPU, then CUDA, then CPU), so `experiments/robot/*` and `vla-scripts/deploy.py`
+run unchanged, for example `python vla-scripts/deploy.py --openvla_path openvla/openvla-7b`. In your own code, load the
+model with `attn_implementation="sdpa"` and move it with `.to("xpu:0")`. The Quick Start above works the same way with
+`"xpu:0"` in place of `"cuda:0"`. Flash Attention 2 is CUDA-only: on other backends the repo falls back to PyTorch
+SDPA attention and logs it once. Training and fine-tuning are not covered.
+
 **Note:** See `vla-scripts/` for full training and verification scripts for OpenVLA models. Note that `scripts/` is
 mostly a holdover from the original (base) `prismatic-vlms` repository, with support for training and evaluating
 visually-conditioned language models; while you can use this repo to train VLMs AND VLAs, note that trying to generate

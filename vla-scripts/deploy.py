@@ -48,6 +48,9 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
+from prismatic.util.device import attn_implementation as resolve_attn_implementation
+from prismatic.util.device import default_device
+
 # === Utilities ===
 SYSTEM_PROMPT = (
     "A chat between a curious user and an artificial intelligence assistant. "
@@ -71,13 +74,13 @@ class OpenVLAServer:
             => Returns  {"action": np.ndarray}
         """
         self.openvla_path, self.attn_implementation = openvla_path, attn_implementation
-        self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+        self.device = default_device()
 
         # Load VLA Model using HF AutoClasses
         self.processor = AutoProcessor.from_pretrained(self.openvla_path, trust_remote_code=True)
         self.vla = AutoModelForVision2Seq.from_pretrained(
             self.openvla_path,
-            attn_implementation=attn_implementation,
+            attn_implementation=resolve_attn_implementation(self.device, attn_implementation),
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             trust_remote_code=True,

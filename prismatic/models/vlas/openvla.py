@@ -14,6 +14,7 @@ from transformers import LlamaTokenizerFast
 
 from prismatic.models.vlms.prismatic import PrismaticVLM
 from prismatic.overwatch import initialize_overwatch
+from prismatic.util.device import device_type
 from prismatic.vla.action_tokenizer import ActionTokenizer
 
 # Initialize Overwatch =>> Wraps `logging.Logger`
@@ -76,7 +77,7 @@ class OpenVLA(PrismaticVLM):
 
         # Invoke super().generate --> taps into `GenerationMixin` which (redirects) to `forward()`
         autocast_dtype = self.llm_backbone.half_precision_dtype
-        with torch.autocast("cuda", dtype=autocast_dtype, enabled=self.enable_mixed_precision_training):
+        with torch.autocast(device_type(self.device), autocast_dtype, enabled=self.enable_mixed_precision_training):
             # fmt: off
             generated_ids = super(PrismaticVLM, self).generate(
                 input_ids=input_ids,                            # Shape: [1, seq]

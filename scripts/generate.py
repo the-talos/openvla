@@ -19,6 +19,7 @@ from PIL import Image
 
 from prismatic import load
 from prismatic.overwatch import initialize_overwatch
+from prismatic.util.device import default_device
 
 # Initialize Overwatch =>> Wraps `logging.Logger`
 overwatch = initialize_overwatch(__name__)
@@ -53,7 +54,7 @@ class GenerateConfig:
 def generate(cfg: GenerateConfig) -> None:
     overwatch.info(f"Initializing Generation Playground with Prismatic Model `{cfg.model_path}`")
     hf_token = cfg.hf_token.read_text().strip() if isinstance(cfg.hf_token, Path) else os.environ[cfg.hf_token]
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    device = default_device()
 
     # Load the pretrained VLM --> uses default `load()` function
     vlm = load(cfg.model_path, hf_token=hf_token)

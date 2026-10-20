@@ -26,6 +26,7 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
+from experiments.robot import openvla_utils
 from experiments.robot.openvla_utils import (
     get_vla,
     get_vla_action,
@@ -36,6 +37,7 @@ from experiments.robot.openvla_utils import (
 from experiments.robot.robot_utils import (
     get_image_resize_size,
 )
+from prismatic.util.device import resolve_device
 from prismatic.vla.constants import ACTION_DIM, ACTION_TOKEN_BEGIN_IDX, IGNORE_INDEX, NUM_ACTIONS_CHUNK, PROPRIO_DIM, STOP_INDEX
 
 
@@ -50,6 +52,9 @@ class OpenVLAServer:
         A simple server for OpenVLA models; exposes `/act` to predict an action for a given observation + instruction.
         """
         self.cfg = cfg
+
+        # The loaders in openvla_utils read this module-level device at call time
+        openvla_utils.DEVICE = resolve_device(cfg.device)
 
         # Load model
         self.vla = get_vla(cfg)
@@ -114,6 +119,7 @@ class DeployConfig:
     # Server Configuration
     host: str = "0.0.0.0"                                               # Host IP Address
     port: int = 8777                                                    # Host Port
+    device: str = ""                                                    # Device to run model on ("" = detect: xpu, cuda, cpu)
 
     #################################################################################################################
     # Model-specific parameters

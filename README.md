@@ -73,6 +73,19 @@ for act in actions:
 
 See [SETUP.md](SETUP.md) for instructions on setting up the conda environment.
 
+### How to run the same on Intel's XPU
+
+Inference runs on Intel GPUs through PyTorch XPU. In [SETUP.md](SETUP.md), install the XPU build of PyTorch in place of the
+CUDA one, and skip the Flash Attention 2 step (inference uses PyTorch SDPA):
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu
+```
+
+The device is detected automatically (XPU, then CUDA, then CPU), so the Quick Start script above runs unchanged. Use
+`ZE_AFFINITY_MASK=0` in place of `CUDA_VISIBLE_DEVICES=0` to pick the card. For the server, pass `--device xpu:0` to
+`vla-scripts/deploy.py` to choose the device explicitly. The LIBERO simulator itself still needs a CUDA machine (it relies on EGL rendering).
+
 ## Training and Evaluation
 
 See [LIBERO.md](LIBERO.md) for fine-tuning/evaluating on LIBERO simulation benchmark task suites.

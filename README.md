@@ -150,6 +150,21 @@ pip install "flash-attn==2.5.5" --no-build-isolation
 
 If you run into any problems during the installation process, please file a GitHub Issue.
 
+### How to run the same on Intel's XPU
+
+Install the XPU build of PyTorch instead of the CUDA one, and skip the Flash Attention 2 step (it is CUDA-only; on
+other backends the model loads with PyTorch SDPA attention and a one-time log line says so):
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/xpu
+pip install -e .   # then run the inference code as usual
+```
+
+The device is picked automatically (XPU, then CUDA, then CPU). Select the card with `ZE_AFFINITY_MASK=0` in place of
+`CUDA_VISIBLE_DEVICES=0`, for example `ZE_AFFINITY_MASK=0 python vla-scripts/deploy.py` or any script that calls
+`get_model` / `get_vla_action` from `experiments/robot`. Only the inference entry points were ported. The VQ action
+tokenizer (`vqvae`) and the simulator harnesses keep their own requirements, and FlashAttention stays CUDA-only.
+
 **Note:** See `vla-scripts/` for full training and verification scripts for OpenVLA models. Note that `scripts/` is
 mostly a holdover from the original (base) `prismatic-vlms` repository, with support for training and evaluating
 visually-conditioned language models; while you can use this repo to train VLMs AND VLAs, note that trying to generate

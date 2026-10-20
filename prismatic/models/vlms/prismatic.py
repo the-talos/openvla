@@ -25,6 +25,7 @@ from prismatic.models.backbones.llm.prompting import PromptBuilder
 from prismatic.models.backbones.vision import VisionBackbone
 from prismatic.models.vlms.base_vlm import VLM
 from prismatic.overwatch import initialize_overwatch
+from prismatic.util.device import device_type
 from prismatic.util.nn_utils import FusedMLPProjector, LinearProjector, MLPProjector
 
 # Initialize Overwatch =>> Wraps `logging.Logger`
@@ -544,7 +545,7 @@ class PrismaticVLM(VLM):
 
         # Invoke super().generate --> taps into `GenerationMixin` which (redirects) to `forward()`
         autocast_dtype = self.llm_backbone.half_precision_dtype
-        with torch.autocast("cuda", dtype=autocast_dtype, enabled=self.enable_mixed_precision_training):
+        with torch.autocast(device_type(self.device), autocast_dtype, enabled=self.enable_mixed_precision_training):
             for idx, input_ids in enumerate(batch_input_ids):
                 if isinstance(pixel_values, torch.Tensor):
                     pixel_values = pixel_values[idx]
@@ -607,7 +608,7 @@ class PrismaticVLM(VLM):
 
         # Invoke super().generate --> taps into `GenerationMixin` which (redirects) to `forward()`
         autocast_dtype = self.llm_backbone.half_precision_dtype
-        with torch.autocast("cuda", dtype=autocast_dtype, enabled=self.enable_mixed_precision_training):
+        with torch.autocast(device_type(self.device), autocast_dtype, enabled=self.enable_mixed_precision_training):
             # fmt: off
             generated_ids = super().generate(
                 input_ids=input_ids,            # Shape: [1, seq]
